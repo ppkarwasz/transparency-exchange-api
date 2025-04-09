@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/ppkarwasz/transparency-exchange-api/refs/heads/main/spec/ontology.schema.json",
+  "$id": "https://raw.githubusercontent.com/ppkarwasz/transparency-exchange-api/refs/heads/workshop/spec/ontology.schema.json",
   "$vocabulary": {
     "https://json-schema.org/draft/2020-12/meta/format-assertion": true
   },
