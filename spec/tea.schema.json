@@ -1,0 +1,327 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/ppkarwasz/transparency-exchange-api/refs/heads/main/spec/ontology.schema.json",
+  "$vocabulary": {
+    "https://json-schema.org/draft/2020-12/meta/format-assertion": true
+  },
+  "title": "Transparency Exchange API Schema",
+  "description": "Schema for main",
+  "$defs": {
+    "date_time": {
+      "type": "string",
+      "description": "Date",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "identifier_type": {
+      "type": "string",
+      "description": "Enumeration of identifiers types",
+      "enum": [
+        "cpe",
+        "tei",
+        "purl"
+      ]
+    },
+    "identifier": {
+      "type": "object",
+      "description": "An identifier with a specified type",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/identifier_type"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "uuid": {
+      "type": "string",
+      "description": "A UUID",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "product": {
+      "type": "object",
+      "description": "A TEA product",
+      "properties": {
+        "uuid": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "Product name"
+        },
+        "identifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "leaves": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/uuid"
+          }
+        }
+      },
+      "required": [
+        "uuid",
+        "name",
+        "identifiers",
+        "leaves"
+      ]
+    },
+    "leaf_version": {
+      "type": "object",
+      "description": "A specific version of a TEA leaf",
+      "properties": {
+        "uuid": {
+          "$ref": "#/$defs/uuid"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version number of TEA leaf"
+        },
+        "identifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "release_date": {
+          "$ref": "#/$defs/date_time",
+          "description": "Release date"
+        },
+        "pre_release": {
+          "type": "boolean",
+          "description": "Marks if the version is a pre-release version"
+        },
+        "classifier": {
+          "type": "object",
+          "description": "Optional classifier to distinguish between artifacts"
+        }
+      },
+      "required": [
+        "uuid",
+        "version",
+        "identifiers",
+        "release_date",
+        "pre_release"
+      ]
+    },
+    "leaf": {
+      "type": "object",
+      "description": "A TEA leaf",
+      "properties": {
+        "uuid": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "Leaf name"
+        },
+        "identifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/leaf_version"
+          }
+        }
+      },
+      "required": [
+        "uuid",
+        "name",
+        "identifiers",
+        "versions"
+      ]
+    },
+    "collection_update_reason_type": {
+      "type": "string",
+      "enum": [
+        "product_released",
+        "vulnerability_disclosed",
+        "attestation_added",
+        "document_fixed"
+      ]
+    },
+    "collection_update_reason": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/collection_update_reason_type"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Free text description"
+        }
+      }
+    },
+    "collection": {
+      "type": "object",
+      "description": "A collection of security-related documents",
+      "properties": {
+        "uuid": {
+          "$ref": "#/$defs/uuid",
+          "description": "Must match the UUID of the corresponding `leaf_version` object"
+        },
+        "version": {
+          "type": "integer",
+          "default": 1,
+          "description": "Collection version, incremented each time its content changes."
+        },
+        "update_reason": {
+          "$ref": "#/$defs/collection_update_reason"
+        }
+      }
+    },
+    "artifact_author": {
+      "type": "object",
+      "description": "The author of a document.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "organization": {
+          "type": "string"
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "description": "A security-related document",
+      "properties": {
+        "uuid": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "Artifact name"
+        },
+        "author": {
+          "$ref": "#/$defs/artifact_author"
+        },
+        "type": {
+          "$ref": "#/$defs/artifact_type"
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifact_format"
+          }
+        }
+      }
+    },
+    "artifact_format": {
+      "type": "object",
+      "description": "A security-related document in a specific format",
+      "properties": {
+        "uuid": {
+          "$ref": "#/$defs/uuid"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "url"
+        },
+        "signature_url": {
+          "type": "string",
+          "format": "url"
+        },
+        "checksums": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifact_checksum"
+          }
+        }
+      }
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": [
+        "vcs",
+        "issue-tracker",
+        "website",
+        "advisories",
+        "bom",
+        "mailing-list",
+        "social",
+        "chat",
+        "documentation",
+        "support",
+        "source-distribution",
+        "distribution",
+        "distribution-intake",
+        "license",
+        "build-meta",
+        "build-system",
+        "release-notes",
+        "security-contact",
+        "model-card",
+        "log",
+        "configuration",
+        "evidence",
+        "formulation",
+        "attestation",
+        "threat-model",
+        "adversary-model",
+        "risk-assessment",
+        "vulnerability-assertion",
+        "exploitability-statement",
+        "pentest-report",
+        "static-analysis-report",
+        "dynamic-analysis-report",
+        "runtime-analysis-report",
+        "component-analysis-report",
+        "maturity-report",
+        "certification-report",
+        "codified-infrastructure",
+        "quality-metrics",
+        "poam",
+        "electronic-signature",
+        "digital-signature",
+        "rfc-9116",
+        "other"
+      ]
+    },
+    "artifact_checksum_alg": {
+      "type": "string",
+      "enum": [
+        "MD5",
+        "SHA-1",
+        "SHA-256",
+        "SHA-384",
+        "SHA-512",
+        "SHA3-256",
+        "SHA3-384",
+        "SHA3-512",
+        "BLAKE2b-256",
+        "BLAKE2b-384",
+        "BLAKE2b-512",
+        "BLAKE3"
+      ]
+    },
+    "artifact_checksum": {
+      "type": "object",
+      "properties": {
+        "alg": {
+          "$ref": "#/$defs/artifact_checksum_alg"
+        },
+        "content": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
