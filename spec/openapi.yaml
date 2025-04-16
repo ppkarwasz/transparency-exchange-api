@@ -1,0 +1,107 @@
+jsonSchemaDialect: https://spec.openapis.org/oas/3.1/dialect/base
+openapi: 3.1.1
+info:
+  title: Transparency Exchange API
+  summary: >-
+    The OWASP Transparency Exchange API specification for consumers and
+    publishers
+  description: TBC
+  contact:
+    name: TEA Working Group
+    email: TBC
+    url: https://github.com/CycloneDX/transparency-exchange-api
+  license:
+    name: Apache 2.0
+    url: https://github.com/CycloneDX/transparency-exchange-api/blob/main/LICENSE
+  version: 0.0.4
+servers:
+  - url: http://localhost/tea/v1
+    description: Local development
+paths:
+  /product/by_tei/{tei_urn}:
+    get:
+      description: Returns the corresponding leafs for a given TEI URN
+      operationId: getTeaProduct
+      parameters:
+        - name: tei_urn
+      responses:
+        '200':
+          description: Requested TEA Product found and returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product'
+        '404':
+          $ref: '#/components/responses/404'
+      tags:
+        - TEA Product
+  /leaf/{uuid}:
+    get:
+      description: Returns the corresponding leafs for a given TEI URN
+      operationId: getTeaProduct
+      parameters:
+        - name: uuid
+      responses:
+        '200':
+          description: Requested TEA Product found and returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/leaf'
+        '404':
+          $ref: '#/components/responses/404'
+      tags:
+        - TEA Leaf
+  /collection/{uuid}:
+    get:
+      description: Returns the corresponding leafs for a given TEI URN
+      operationId: getTeaProduct
+      parameters:
+        - name: uuid
+      responses:
+        '200':
+          description: Requested TEA Product found and returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/collection'
+        '404':
+          $ref: '#/components/responses/404'
+      tags:
+        - TEA Leaf
+webhooks: {}
+components:
+  schemas:
+    tei_identifier:
+    product:
+      $ref: https://raw.githubusercontent.com/ppkarwasz/transparency-exchange-api/refs/heads/workshop/spec/tea.schema.json#/$defs/product
+    leaf:
+      $ref: https://raw.githubusercontent.com/ppkarwasz/transparency-exchange-api/refs/heads/workshop/spec/tea.schema.json#/$defs/leaf
+    collection:
+      $ref: https://raw.githubusercontent.com/ppkarwasz/transparency-exchange-api/refs/heads/workshop/spec/tea.schema.json#/$defs/collection
+    artifact:
+      $ref: https://raw.githubusercontent.com/ppkarwasz/transparency-exchange-api/refs/heads/workshop/spec/tea.schema.json#/$defs/artifact
+  responses:
+    404:
+      description: Object not found
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    basicAuth:
+      type: http
+      scheme: basic
+  security_requirements:
+    standard_auth:
+      - bearerAuth: []
+      - basicAuth: []
+security:
+  - bearerAuth: []
+  - basicAuth: []
+tags:
+  - TEA Collection
+  - TEA Product
+  - TEA Leaf
+externalDocs:
+  description: Transparency Exchange API specification
+  url: https://github.com/CycloneDX/transparency-exchange-api
