@@ -47,12 +47,15 @@ paths:
         match.
       operationId: getTeaProductByIdentifier
       parameters:
-        - $ref: "#/components/parameters/page-offset"
-        - $ref: "#/components/parameters/page-size"
+        - $ref: "#/components/parameters/pagination-params"
         - $ref: "#/components/parameters/tei_urn"
       responses:
         '200':
-          $ref: "#/components/responses/paginated-product"
+          description: List of TEA Products successfully returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/product-list"
         '400':
           $ref: "#/components/responses/400-invalid-request"
         '404':
@@ -607,29 +610,55 @@ components:
     #
     # Types used in API responses
     #
-    pagination-details:
+    pagination-request:
       type: object
+      description: Parameters to limit the number of returned results.
       properties:
-        timestamp:
-          type: string
-          format: date-time
-          example: '2024-03-20T15:30:00Z'
-        page_start_index:
-          type: number
+        pageOffset:
+          type: integer
           format: int64
           default: 0
-        page_size:
-          type: number
+          description: Offset of the first result to return.
+        pageSize:
+          type: integer
           format: int64
           default: 100
-        total_results:
-          type: number
-          format: int64
+          description: Maximum number of results to return.
+      # All properties have default values
+      required: [ ]
+    pagination:
+      description: Details of the subset of returned results.
+      allOf:
+        - $ref: "#/components/schemas/pagination-request"
+        - type: object
+          properties:
+            timestamp:
+              $ref: "#/components/schemas/date-time"
+              description: Last modification date of the results paginated.
+            totalResults:
+              type: integer
+              format: int64
+              description: Total number of results available.
+        - required:
+            - pageOffset
+            - pageSize
+            - totalResults
+
+    product-list:
+      properties:
+        pagination:
+          $ref: "#/components/schemas/pagination"
+          description: Details of the displayed page.
+        products:
+          type: array
+          description: |
+            List of TEA products.
+            The returned products should match the query parameters, if the TEA Server supports them.
+          items:
+            $ref: "#/components/schemas/product"
       required:
-        - timestamp
-        - page_start_index
-        - page_size
-        - total_results
+        - pagination
+        - products
   responses:
     204-common-delete:
       description: Object deleted successfully
@@ -647,39 +676,20 @@ components:
       description: Object requested by identifier not found
       content:
         application/json: {}
-    paginated-product:
-      description: A paginated response containing TEA Products
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: "#/components/schemas/pagination-details"
-              - type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      "$ref": "#/components/schemas/product"
+
   parameters:
-    # Pagination
-    page-offset:
-      name: page-offset
-      description: Pagination offset
+    # Pagination parameters
+    #
+    # They are serialized as two separate query parameters `pageOffset` and `pageSize`
+    pagination-params:
+      name: paginationParams
+      description: Parameters to limit the number of returned results.
       in: query
       required: false
       schema:
-        type: number
-        format: int64
-        default: 0
-    page-size:
-      name: page-size
-      description: Pagination offset
-      in: query
-      required: false
-      schema:
-        type: number
-        format: int64
-        default: 100
+        $ref: "#/components/schemas/pagination-request"
+      style: form
+      explode: true
     # Identifiers
     tei_urn:
       name: tei_urn
